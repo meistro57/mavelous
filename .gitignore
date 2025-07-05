@@ -4,3 +4,4 @@ mavproxy
 *.pyc
 *.log
 camera/
+node_modules/

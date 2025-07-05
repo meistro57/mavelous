@@ -28,11 +28,18 @@ http://www.youtube.com/watch?v=QNql3n4C8iA
 Requirements
 ------------
 
-Mavelous depends on [CherryPy](http://www.cherrypy.org/) and
-[Flask](http://flask.pocoo.org/), which can be easily installed with
-`easy_install` or `pip`:
+Mavelous depends on [CherryPy](http://www.cherrypy.org/),
+[Flask](http://flask.pocoo.org/) and a small set of JavaScript
+libraries managed with [npm](https://www.npmjs.com/).  The Python
+packages can be installed with `pip`:
 
     $ pip install flask cherrypy
+
+The JavaScript dependencies and bundled client code are built with
+Webpack.  To install the dependencies and build the bundle run:
+
+    $ npm install
+    $ npm run build
 
 
 Architecture

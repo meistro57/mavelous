@@ -28,11 +28,6 @@ http://www.youtube.com/watch?v=QNql3n4C8iA
 Requirements
 ------------
 
-Mavelous depends on [CherryPy](http://www.cherrypy.org/) and
-[Flask](http://flask.pocoo.org/), which can be easily installed with
-`easy_install` or `pip`:
-
-    $ pip install flask cherrypy
 
 
 Architecture
@@ -123,6 +118,14 @@ How to run it
 
 A web browser will open showing you the Mavelous interface, or you can point a browser to http://localhost:9999.
 
+During development the mmap module launches Flask's built-in server in
+the background. For production you can serve the same application with
+Gunicorn:
+
+```bash
+$ gunicorn modules.lib.mmap_server:app
+```
+
 You'll be able to use the Mavelous interface to control Guided mode once in
 flight. Find out more about guided mode on [ArduCopter](http://code.google.com/p/arducopter/wiki/AC2_GuidedMode).
 
@@ -164,6 +167,8 @@ flight. Find out more about guided mode on [ArduCopter](http://code.google.com/p
     ```
 
 A web browser will open showing you the Mavelous interface, or you can point a browser to http://localhost:9999
+During development the mmap module launches Flask's built-in server in
+the background. To run in production use Gunicorn as shown above.
 
 
 

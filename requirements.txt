@@ -1,0 +1,13 @@
+flask
+cherrypy
+pygame
+wxPython
+numpy
+pillow
+opencv-python
+httplib2
+simplekml
+pyserial
+pymavlink
+matplotlib
+python-speechd

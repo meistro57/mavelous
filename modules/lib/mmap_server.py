@@ -3,10 +3,8 @@ import os
 import os.path
 import threading
 import types
+import time
 
-from cheroot.wsgi import Server as CherryPyWSGIServer, PathInfoDispatcher
-import flask
-from werkzeug.middleware.shared_data import SharedDataMiddleware
 
 app = flask.Flask(__name__)
 
@@ -42,7 +40,7 @@ def command_handler():
   # FIXME: I couldn't figure out how to get jquery to send a
   # Content-Type: application/json, which would have let us use
   # request.json.  And for some reason the data is in the key name.
-  body_obj = json.loads(list(flask.request.form.keys())[0])
+
   app.module_state.command(body_obj)
   return 'OK'
 
@@ -68,13 +66,36 @@ def response_dict_for_message(msg, time, index):
   return resp
 
 
+class _ServerWrapper(threading.Thread):
+  """Runs the Flask application in a background thread."""
+
+  def __init__(self, host, port):
+    threading.Thread.__init__(self)
+    self.daemon = True
+    self.server = make_server(host, port, app)
+
+  def run(self):
+    self.server.serve_forever()
+
+  def terminate(self):
+    self.server.shutdown()
+
+
 def start_server(address, port, module_state):
-  dispatcher = PathInfoDispatcher({'/': app})
-  server = CherryPyWSGIServer(
-    (address, port),
-    dispatcher)
-  server_thread = threading.Thread(target=server.start)
-  server_thread.daemon = True
-  server_thread.start()
+
   app.module_state = module_state
-  return server
+  srv.start()
+  return srv
+
+
+if __name__ == '__main__':
+  # Simple entry point for running the server directly in development.
+  class _State(object):
+    messages = None
+
+  start_server('127.0.0.1', 9999, module_state=_State())
+  try:
+    while True:
+      time.sleep(1)
+  except KeyboardInterrupt:
+    pass

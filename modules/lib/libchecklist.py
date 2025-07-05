@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
   MAVProxy checklist, implemented in a child process
@@ -29,7 +29,7 @@ class UI():
 
     def child_task(self):
         '''child process - this holds all the GUI elements'''
-        import Tkinter as tk
+        import tkinter as tk
 
         '''curStep is which step in the list we're up to, increments +1 for each list completed
         it is the same as the column number of the checklist item'''
@@ -110,7 +110,7 @@ class UI():
 
     def createWidgets(self, frame):
         '''Create the controls on the UI'''
-        import Tkinter as tk
+        import tkinter as tk
 
         '''Group Labels'''
         AssemblyLabel = tk.Label(frame, text="During Assembly")
@@ -243,14 +243,14 @@ class UI():
 
     def beforeAssemblyListCheck(self):
         '''Event for the "Checklist Complete" button for the Before Assembly section'''
-        import Tkinter as tk
-        import tkMessageBox
+        import tkinter as tk
+        import tkinter.messagebox
 
         '''Check all of the checklist for ticks'''
-        for key, value in self.beforeAssemblyList.items():
+        for key, value in list(self.beforeAssemblyList.items()):
             state = value.get()
             if state == 0 or state == 2:
-                tkMessageBox.showinfo("Error", "Item not ticked: " + key)
+                tkinter.messagebox.showinfo("Error", "Item not ticked: " + key)
                 return
 
         '''disable all checkboxes in this column'''
@@ -265,14 +265,14 @@ class UI():
 
     def beforeEngineCheck(self):
         '''Event for the "Checklist Complete" button for the Before Engine Start section'''
-        import Tkinter as tk
-        import tkMessageBox
+        import tkinter as tk
+        import tkinter.messagebox
 
         '''Check all of the checklist for ticks'''
-        for key, value in self.beforeEngineList.items():
+        for key, value in list(self.beforeEngineList.items()):
             state = value.get()
             if state == 0 or state == 2:
-                tkMessageBox.showinfo("Error", "Item not ticked: " + key)
+                tkinter.messagebox.showinfo("Error", "Item not ticked: " + key)
                 return
 
         '''disable all checkboxes in this column'''
@@ -287,14 +287,14 @@ class UI():
 
     def beforeTakeoffCheck(self):
         '''Event for the "Checklist Complete" button for the Before Takeoff section'''
-        import Tkinter as tk
-        import tkMessageBox
+        import tkinter as tk
+        import tkinter.messagebox
 
         '''Check all of the checklist for ticks'''
-        for key, value in self.beforeTakeoffList.items():
+        for key, value in list(self.beforeTakeoffList.items()):
             state = value.get()
             if state == 0 or state == 2:
-                tkMessageBox.showinfo("Error", "Item not ticked: " + key)
+                tkinter.messagebox.showinfo("Error", "Item not ticked: " + key)
                 return
 
         '''disable all checkboxes in this column'''
@@ -310,14 +310,14 @@ class UI():
 
     def beforeCruiseCheck(self):
         '''Event for the "Checklist Complete" button for the Before Cruise/AUTO section'''
-        import Tkinter as tk
-        import tkMessageBox
+        import tkinter as tk
+        import tkinter.messagebox
 
         '''Check all of the checklist for ticks'''
-        for key, value in self.beforeCruiseList.items():
+        for key, value in list(self.beforeCruiseList.items()):
             state = value.get()
             if state == 0 or state == 2:
-                tkMessageBox.showinfo("Error", "Item not ticked: " + key)
+                tkinter.messagebox.showinfo("Error", "Item not ticked: " + key)
                 return
 
         '''disable all checkboxes in this column'''
@@ -327,20 +327,20 @@ class UI():
 
         '''if we made it here, the checklist is OK'''
         '''self.bottleDropButton.config(state="normal")'''
-        tkMessageBox.showinfo("Information", "Checklist Completed!")
+        tkinter.messagebox.showinfo("Information", "Checklist Completed!")
         self.beforeCruiseButton.config(text='Checklist Completed', state="disabled")
         self.curStep = 4
 
     def bottleDropCheck(self):
         '''Event for the "Checklist Complete" button for the Before Bottle Drop section'''
-        import Tkinter as tk
-        import tkMessageBox
+        import tkinter as tk
+        import tkinter.messagebox
 
         '''Check all of the checklist for ticks'''
-        for key, value in self.bottleDropList.items():
+        for key, value in list(self.bottleDropList.items()):
             state = value.get()
             if state == 0 or state == 2:
-                tkMessageBox.showinfo("Error", "Item not ticked: " + key)
+                tkinter.messagebox.showinfo("Error", "Item not ticked: " + key)
                 return
 
         '''disable all checkboxes in this column'''
@@ -355,14 +355,14 @@ class UI():
 
     def beforeLandingCheck(self):
         '''Event for the "Checklist Complete" button for the Before Landing section'''
-        import Tkinter as tk
-        import tkMessageBox
+        import tkinter as tk
+        import tkinter.messagebox
 
         '''Check all of the checklist for ticks'''
-        for key, value in self.beforeLandingList.items():
+        for key, value in list(self.beforeLandingList.items()):
             state = value.get()
             if state == 0 or state == 2:
-                tkMessageBox.showinfo("Error", "Item not ticked: " + key)
+                tkinter.messagebox.showinfo("Error", "Item not ticked: " + key)
                 return
 
         '''disable all checkboxes in this column'''
@@ -377,14 +377,14 @@ class UI():
 
     def beforeShutdownCheck(self):
         '''Event for the "Checklist Complete" button for the Before Landing section'''
-        import Tkinter as tk
-        import tkMessageBox
+        import tkinter as tk
+        import tkinter.messagebox
 
         '''Check all of the checklist for ticks'''
-        for key, value in self.beforeShutdownList.items():
+        for key, value in list(self.beforeShutdownList.items()):
             state = value.get()
             if state == 0 or state == 2:
-                tkMessageBox.showinfo("Error", "Item not ticked: " + key)
+                tkinter.messagebox.showinfo("Error", "Item not ticked: " + key)
                 return
 
         '''disable all checkboxes in this column'''
@@ -394,7 +394,7 @@ class UI():
 
         '''if we made it here, the checklist is OK'''
         self.beforeShutdownButton.config(text='Checklist Completed', state="disabled")
-        tkMessageBox.showinfo("Information", "Checklist Completed!")
+        tkinter.messagebox.showinfo("Information", "Checklist Completed!")
         self.curStep = 7
 
     def close(self):
@@ -410,7 +410,7 @@ class UI():
     def on_timer(self):
         '''this timer periodically checks the inter-process pipe
         for any updated checklist items'''
-        import Tkinter as tk
+        import tkinter as tk
         if self.close_event.wait(0.001):
             self.timer.Stop()
             self.Destroy()

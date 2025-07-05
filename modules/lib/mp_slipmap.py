@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 slipmap based on mp_tile
 Andrew Tridgell
@@ -468,7 +468,7 @@ class MPSlipMapFrame(wx.Frame):
         state = self.state
 
         if layers is None:
-            layers = state.layers.keys()
+            layers = list(state.layers.keys())
         for layer in layers:
             if key in state.layers[layer]:
                 return state.layers[layer][key]
@@ -681,7 +681,7 @@ class MPSlipMapPanel(wx.Panel):
 
     def draw_objects(self, objects, bounds, img):
         '''draw objects on the image'''
-        keys = objects.keys()
+        keys = list(objects.keys())
         keys.sort()
         for k in keys:
             obj = objects[k]
@@ -708,7 +708,7 @@ class MPSlipMapPanel(wx.Panel):
 
         # draw layer objects
         img = cv.CloneImage(self.map_img)
-        keys = state.layers.keys()
+        keys = list(state.layers.keys())
         keys.sort()
         for k in keys:
             self.draw_objects(state.layers[k], bounds, img)
@@ -807,7 +807,7 @@ class MPSlipMapPanel(wx.Panel):
     def clear_thumbnails(self):
         state = self.state
         for l in state.layers:
-            keys = state.layers[l].keys()[:]
+            keys = list(state.layers[l].keys())[:]
             for key in keys:
                 if (isinstance(state.layers[l][key], SlipThumbnail)
                     and not isinstance(state.layers[l][key], SlipIcon)):
@@ -885,9 +885,9 @@ if __name__ == "__main__":
         while sm.event_count() > 0:
             obj = sm.get_event()
             if isinstance(obj, SlipMouseEvent):
-                print("Mouse event at %s (X/Y=%u/%u) for %u objects" % (obj.latlon,
+                print(("Mouse event at %s (X/Y=%u/%u) for %u objects" % (obj.latlon,
                                                                         obj.event.X, obj.event.Y,
-                                                                        len(obj.selected)))
+                                                                        len(obj.selected))))
             if isinstance(obj, SlipKeyEvent):
-                print("Key event at %s for %u objects" % (obj.latlon, len(obj.selected)))
+                print(("Key event at %s for %u objects" % (obj.latlon, len(obj.selected))))
         time.sleep(0.1)

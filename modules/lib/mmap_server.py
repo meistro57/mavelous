@@ -5,9 +5,6 @@ import threading
 import types
 import time
 
-import flask
-from werkzeug.middleware.shared_data import SharedDataMiddleware
-from werkzeug.serving import make_server
 
 app = flask.Flask(__name__)
 
@@ -43,10 +40,7 @@ def command_handler():
   # FIXME: I couldn't figure out how to get jquery to send a
   # Content-Type: application/json, which would have let us use
   # request.json.  And for some reason the data is in the key name.
-  # In older jQuery versions the payload ended up as the key name of the
-  # form dictionary. ``keys()`` now returns a view so grab the first item
-  # explicitly for compatibility with Flask 2.x.
-  body_obj = json.loads(next(iter(flask.request.form.keys())))
+
   app.module_state.command(body_obj)
   return 'OK'
 
@@ -61,8 +55,8 @@ def nul_terminate(s):
 
 def response_dict_for_message(msg, time, index):
   mdict = msg.to_dict()
-  for key, value in mdict.items():
-    if isinstance(value, types.StringTypes):
+  for key, value in list(mdict.items()):
+    if isinstance(value, (str,)):
       mdict[key] = nul_terminate(value)
     resp = {
       'time_usec': time,
@@ -88,8 +82,7 @@ class _ServerWrapper(threading.Thread):
 
 
 def start_server(address, port, module_state):
-  """Start the web server in a background thread."""
-  srv = _ServerWrapper(address, port)
+
   app.module_state = module_state
   srv.start()
   return srv

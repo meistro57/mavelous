@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 A PPP over MAVLink module
 Andrew Tridgell
@@ -34,7 +34,7 @@ def ppp_read(ppp_fd):
         # EOF on the child fd
         stop_ppp_link()
         return
-    print("ppp packet len=%u" % len(buf))
+    print(("ppp packet len=%u" % len(buf)))
     master = mpstate.master()
     master.mav.ppp_send(len(buf), buf)
 
@@ -81,11 +81,11 @@ def cmd_ppp(args):
     state = mpstate.ppp_state
     usage = "ppp <command|start|stop>"
     if len(args) == 0:
-        print usage
+        print(usage)
         return
     if args[0] == "command":
         if len(args) == 1:
-            print("ppp.command=%s" % " ".join(state.command))
+            print(("ppp.command=%s" % " ".join(state.command)))
         else:
             state.command = args[1:]
     elif args[0] == "start":
@@ -110,5 +110,5 @@ def mavlink_packet(m):
     '''handle an incoming mavlink packet'''
     state = mpstate.ppp_state
     if m.get_type() == 'PPP' and state.ppp_fd != -1:
-        print("got ppp mavlink pkt len=%u" % m.length)
+        print(("got ppp mavlink pkt len=%u" % m.length))
         os.write(state.ppp_fd, m.data[:m.length])

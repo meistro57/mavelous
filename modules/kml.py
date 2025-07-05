@@ -1,14 +1,14 @@
-import BaseHTTPServer
+import http.server
 import os.path
 import threading
-import urlparse
+import urllib.parse
 
 import simplekml
 
 
-class Server(BaseHTTPServer.HTTPServer):
+class Server(http.server.HTTPServer):
   def __init__(self, handler, address='', port=9999, module_state=None):
-    BaseHTTPServer.HTTPServer.__init__(self, (address, port), handler)
+    http.server.HTTPServer.__init__(self, (address, port), handler)
     self.allow_reuse_address = True
     self.module_state = module_state
 
@@ -25,7 +25,7 @@ def content_type_for_file(path):
     return 'text/plain; charset=utf-8'
 
 
-class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
+class Handler(http.server.BaseHTTPRequestHandler):
   def log_request(code, size=None):
     pass
 

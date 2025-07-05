@@ -5,6 +5,10 @@ import threading
 import types
 import time
 
+import flask
+from wsgiref.simple_server import make_server
+from werkzeug.middleware.shared_data import SharedDataMiddleware
+
 
 app = flask.Flask(__name__)
 
@@ -41,6 +45,8 @@ def command_handler():
   # Content-Type: application/json, which would have let us use
   # request.json.  And for some reason the data is in the key name.
 
+  data = flask.request.get_data(as_text=True)
+  body_obj = json.loads(data) if data else {}
   app.module_state.command(body_obj)
   return 'OK'
 
@@ -84,6 +90,7 @@ class _ServerWrapper(threading.Thread):
 def start_server(address, port, module_state):
 
   app.module_state = module_state
+  srv = _ServerWrapper(address, port)
   srv.start()
   return srv
 

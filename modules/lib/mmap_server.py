@@ -3,16 +3,17 @@ import os
 import os.path
 import threading
 import types
+import time
 
-from cherrypy import wsgiserver
 import flask
-from werkzeug import wsgi
+from werkzeug.middleware.shared_data import SharedDataMiddleware
+from werkzeug.serving import make_server
 
 app = flask.Flask(__name__)
 
 DOC_DIR = os.path.join(os.path.dirname(__file__), 'mmap_app')
 
-app.wsgi_app = wsgi.SharedDataMiddleware(
+app.wsgi_app = SharedDataMiddleware(
   app.wsgi_app,
   {'/': DOC_DIR})
 
@@ -42,7 +43,10 @@ def command_handler():
   # FIXME: I couldn't figure out how to get jquery to send a
   # Content-Type: application/json, which would have let us use
   # request.json.  And for some reason the data is in the key name.
-  body_obj = json.loads(flask.request.form.keys()[0])
+  # In older jQuery versions the payload ended up as the key name of the
+  # form dictionary. ``keys()`` now returns a view so grab the first item
+  # explicitly for compatibility with Flask 2.x.
+  body_obj = json.loads(next(iter(flask.request.form.keys())))
   app.module_state.command(body_obj)
   return 'OK'
 
@@ -68,13 +72,37 @@ def response_dict_for_message(msg, time, index):
   return resp
 
 
+class _ServerWrapper(threading.Thread):
+  """Runs the Flask application in a background thread."""
+
+  def __init__(self, host, port):
+    threading.Thread.__init__(self)
+    self.daemon = True
+    self.server = make_server(host, port, app)
+
+  def run(self):
+    self.server.serve_forever()
+
+  def terminate(self):
+    self.server.shutdown()
+
+
 def start_server(address, port, module_state):
-  dispatcher = wsgiserver.WSGIPathInfoDispatcher({'/': app})
-  server = wsgiserver.CherryPyWSGIServer(
-    (address, port),
-    dispatcher)
-  server_thread = threading.Thread(target=server.start)
-  server_thread.daemon = True
-  server_thread.start()
+  """Start the web server in a background thread."""
+  srv = _ServerWrapper(address, port)
   app.module_state = module_state
-  return server
+  srv.start()
+  return srv
+
+
+if __name__ == '__main__':
+  # Simple entry point for running the server directly in development.
+  class _State(object):
+    messages = None
+
+  start_server('127.0.0.1', 9999, module_state=_State())
+  try:
+    while True:
+      time.sleep(1)
+  except KeyboardInterrupt:
+    pass

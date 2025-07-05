@@ -62,21 +62,21 @@ if __name__ == "__main__":
     t0 = time.time()
     alt = EleModel.GetElevation(lat, lon)
     t1 = time.time()
-    print("Altitude at (%.6f, %.6f) is %u m. Pulled at %.1f FPS" % (lat, lon, alt, 1/(t1-t0)))
+    print(("Altitude at (%.6f, %.6f) is %u m. Pulled at %.1f FPS" % (lat, lon, alt, 1/(t1-t0))))
 
     lat = opts.lat+0.001
     lon = opts.lon+0.001
     t0 = time.time()
     alt = EleModel.GetElevation(lat, lon)
     t1 = time.time()
-    print("Altitude at (%.6f, %.6f) is %u m. Pulled at %.1f FPS" % (lat, lon, alt, 1/(t1-t0)))
+    print(("Altitude at (%.6f, %.6f) is %u m. Pulled at %.1f FPS" % (lat, lon, alt, 1/(t1-t0))))
 
     lat = opts.lat-0.001
     lon = opts.lon-0.001
     t0 = time.time()
     alt = EleModel.GetElevation(lat, lon)
     t1 = time.time()
-    print("Altitude at (%.6f, %.6f) is %u m. Pulled at %.1f FPS" % (lat, lon, alt, 1/(t1-t0)))
+    print(("Altitude at (%.6f, %.6f) is %u m. Pulled at %.1f FPS" % (lat, lon, alt, 1/(t1-t0))))
 
 
 

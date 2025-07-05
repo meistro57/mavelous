@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''joystick interface module
 
 Contributed by AndrewF:
@@ -16,9 +16,9 @@ def get_joystick():
     try:
 	    j = pygame.joystick.Joystick(0) # create a joystick instance
 	    j.init() # init instance
-	    print 'joystick initialized: ' + j.get_name()
+	    print('joystick initialized: ' + j.get_name())
     except pygame.error:
-        print 'joystick not found.'
+        print('joystick not found.')
         return
 
     while not mpstate.status.exit:        

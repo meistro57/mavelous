@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 display a image with scrollbars in a subprocess
 Andrew Tridgell
@@ -154,9 +154,9 @@ if __name__ == "__main__":
 
     while im.is_alive():
         for event in im.events():
-            print event.ClassName
+            print(event.ClassName)
             if event.ClassName == 'wxMouseEvent':
-                print 'mouse', event.X, event.Y
+                print('mouse', event.X, event.Y)
             if event.ClassName == 'wxKeyEvent':
-                print 'key %u' % event.KeyCode
+                print('key %u' % event.KeyCode)
         time.sleep(0.1)

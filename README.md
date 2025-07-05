@@ -28,11 +28,6 @@ http://www.youtube.com/watch?v=QNql3n4C8iA
 Requirements
 ------------
 
-Mavelous depends on [Flask](https://palletsprojects.com/p/flask/).
-For production deployments we recommend the [Gunicorn](https://gunicorn.org/)
-WSGI server.  Install the required packages with `pip`:
-
-    $ pip install flask gunicorn
 
 
 Architecture

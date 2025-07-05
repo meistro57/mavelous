@@ -29,6 +29,12 @@ Requirements
 ------------
 
 
+The JavaScript dependencies and bundled client code are built with
+Webpack.  To install the dependencies and build the bundle run:
+
+    $ npm install
+    $ npm run build
+
 
 Architecture
 ------------

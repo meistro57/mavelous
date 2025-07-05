@@ -539,7 +539,7 @@ def init(_mpstate):
 
 def unload():
     '''unload module'''
-    state.running = False
+    mpstate.camera_state.running = False
     mpstate.camera_state.unload.set()
     if mpstate.camera_state.capture_thread is not None:
         mpstate.camera_state.capture_thread.join(1.0)

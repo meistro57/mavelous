@@ -31,7 +31,7 @@ def cmd_antenna(args):
         if state.gcs_location is None:
             print("GCS location not set")
         else:
-            print(("GCS location %s" % str(self.gcs_location)))
+            print(("GCS location %s" % str(state.gcs_location)))
         return
     state.gcs_location = (float(args[0]), float(args[1]))
         

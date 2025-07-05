@@ -31,12 +31,12 @@ def cmd_graph(args):
     if len(args) == 0:
         # list current graphs
         for i in range(len(state.graphs)):
-            print("Graph %u: %s" % (i, state.graphs[i].fields))
+            print(("Graph %u: %s" % (i, state.graphs[i].fields)))
         return
 
     if args[0] == "timespan":
         if len(args) == 1:
-            print("timespan: %.1f" % state.timespan)
+            print(("timespan: %.1f" % state.timespan))
             return
         state.timespan = float(args[1])
         return
@@ -88,7 +88,7 @@ class Graph():
             caps = set(re.findall(re_caps, f))
             self.msg_types = self.msg_types.union(caps)
             self.field_types.append(caps)
-        print("Adding graph: %s" % self.fields)
+        print(("Adding graph: %s" % self.fields))
 
         self.values = [None]*len(self.fields)
         self.livegraph = live_graph.LiveGraph(self.fields,

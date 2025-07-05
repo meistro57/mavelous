@@ -23,7 +23,7 @@ class MetaMessage(object):
     return self.msg_type
 
   def to_dict(self):
-    d = dict(self.data.items())
+    d = dict(list(self.data.items()))
     d['mavpackettype'] = self.msg_type
     return d
 
@@ -51,7 +51,7 @@ class MessageMemo(object):
       return None
 
   def message_types(self):
-    return self._d.keys()
+    return list(self._d.keys())
 
   def has_message(self, mt):
     mtype = mt.upper()
@@ -77,7 +77,7 @@ class LinkStateThread(threading.Thread):
       self._running_flag = False
 
   def terminate(self):
-    print "terminating metalinkquality!"
+    print("terminating metalinkquality!")
     self.stop.set()
 
   def update_meta_linkquality(self):
@@ -107,7 +107,7 @@ class ModuleState(object):
     self.linkstatethread.start()
 
   def terminate(self):
-    print "mmap module state terminate"
+    print("mmap module state terminate")
     self.server.terminate()
     self.linkstatethread.terminate()
 
@@ -170,7 +170,7 @@ def init(module_context):
 
 def unload():
   """unload module"""
-  print "mmap module unload"
+  print("mmap module unload")
   global g_module_context
   g_module_context.mmap_state.terminate()
 

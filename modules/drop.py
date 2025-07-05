@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ''' simple bottle drop module'''
 
 import time
@@ -53,4 +53,4 @@ def mavlink_packet(m):
         check_drop(m)
     if m.get_type() == 'PARAM_VALUE':
         if str(m.param_id) == 'RC5_FUNCTION' and m.param_value != 1.0:
-            print("DROP WARNING: RC5_FUNCTION=%u" % m.param_value)
+            print(("DROP WARNING: RC5_FUNCTION=%u" % m.param_value))

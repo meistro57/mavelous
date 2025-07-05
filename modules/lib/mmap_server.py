@@ -4,15 +4,15 @@ import os.path
 import threading
 import types
 
-from cherrypy import wsgiserver
+from cheroot.wsgi import Server as CherryPyWSGIServer, PathInfoDispatcher
 import flask
-from werkzeug import wsgi
+from werkzeug.middleware.shared_data import SharedDataMiddleware
 
 app = flask.Flask(__name__)
 
 DOC_DIR = os.path.join(os.path.dirname(__file__), 'mmap_app')
 
-app.wsgi_app = wsgi.SharedDataMiddleware(
+app.wsgi_app = SharedDataMiddleware(
   app.wsgi_app,
   {'/': DOC_DIR})
 
@@ -42,7 +42,7 @@ def command_handler():
   # FIXME: I couldn't figure out how to get jquery to send a
   # Content-Type: application/json, which would have let us use
   # request.json.  And for some reason the data is in the key name.
-  body_obj = json.loads(flask.request.form.keys()[0])
+  body_obj = json.loads(list(flask.request.form.keys())[0])
   app.module_state.command(body_obj)
   return 'OK'
 
@@ -57,8 +57,8 @@ def nul_terminate(s):
 
 def response_dict_for_message(msg, time, index):
   mdict = msg.to_dict()
-  for key, value in mdict.items():
-    if isinstance(value, types.StringTypes):
+  for key, value in list(mdict.items()):
+    if isinstance(value, (str,)):
       mdict[key] = nul_terminate(value)
     resp = {
       'time_usec': time,
@@ -69,8 +69,8 @@ def response_dict_for_message(msg, time, index):
 
 
 def start_server(address, port, module_state):
-  dispatcher = wsgiserver.WSGIPathInfoDispatcher({'/': app})
-  server = wsgiserver.CherryPyWSGIServer(
+  dispatcher = PathInfoDispatcher({'/': app})
+  server = CherryPyWSGIServer(
     (address, port),
     dispatcher)
   server_thread = threading.Thread(target=server.start)

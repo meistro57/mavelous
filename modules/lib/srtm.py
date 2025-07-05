@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Pylint: Disable name warnings
 # pylint: disable-msg=C0103
@@ -6,9 +6,9 @@
 """Load and process SRTM data. Originally written by OpenStreetMap
 Edited by CanberraUAV"""
 
-#import xml.dom.minidom
-from HTMLParser import HTMLParser
-import httplib
+# import xml.dom.minidom
+from html.parser import HTMLParser
+import http.client
 import re
 import pickle
 import os.path
@@ -18,8 +18,10 @@ import array
 import math
 import multiprocessing
 
+
 class NoSuchTileError(Exception):
     """Raised when there is no tile for a region."""
+
     def __init__(self, lat, lon):
         Exception.__init__(self)
         self.lat = lat
@@ -31,6 +33,7 @@ class NoSuchTileError(Exception):
 
 class WrongTileError(Exception):
     """Raised when the value of a pixel outside the tile area is requested."""
+
     def __init__(self, tile_lat, tile_lon, req_lat, req_lon):
         Exception.__init__(self)
         self.tile_lat = tile_lat
@@ -42,8 +45,10 @@ class WrongTileError(Exception):
         return "SRTM tile for %d, %d does not contain data for %d, %d!" % (
             self.tile_lat, self.tile_lon, self.req_lat, self.req_lon)
 
+
 class InvalidTileError(Exception):
     """Raised when the SRTM tile file contains invalid data."""
+
     def __init__(self, lat, lon):
         Exception.__init__(self)
         self.lat = lat
@@ -52,8 +57,10 @@ class InvalidTileError(Exception):
     def __str__(self):
         return "SRTM tile for %d, %d is invalid!" % (self.lat, self.lon)
 
+
 class SRTMDownloader():
     """Automatically download SRTM tiles."""
+
     def __init__(self, server="dds.cr.usgs.gov",
                  directory="/srtm/version2_1/SRTM3/",
                  cachedir=os.path.join(os.environ['HOME'], '.tilecache/SRTM'),
@@ -63,13 +70,13 @@ class SRTMDownloader():
         self.server = server
         self.directory = directory
         self.cachedir = cachedir
-	'''print "SRTMDownloader - server= %s, directory=%s." % \
-              (self.server, self.directory)'''
+        # print("SRTMDownloader - server= %s, directory=%s." %
+        #       (self.server, self.directory))
         if not os.path.exists(cachedir):
             os.mkdir(cachedir)
         self.filelist = {}
         self.filename_regex = re.compile(
-                r"([NS])(\d{2})([EW])(\d{3})\.hgt\.zip")
+            r"([NS])(\d{2})([EW])(\d{3})\.hgt\.zip")
         self.filelist_file = self.cachedir + "/filelist_python"
         self.childFileListDownload = None
         self.childTileDownload = None
@@ -103,8 +110,8 @@ class SRTMDownloader():
         HTTP file transfer protocol (rather than ftp).
         30may2010  GJ ORIGINAL VERSION
         """
-        conn = httplib.HTTPConnection(server)
-        conn.request("GET",directory)
+        conn = http.client.HTTPConnection(server)
+        conn.request("GET", directory)
         r1 = conn.getresponse()
         '''if r1.status==200:
             print "status200 received ok"
@@ -120,8 +127,8 @@ class SRTMDownloader():
 
         for continent in continents:
             '''print "Downloading file list for", continent'''
-            conn.request("GET","%s/%s" % \
-                         (self.directory,continent))
+            conn.request("GET", "%s/%s" % \
+                         (self.directory, continent))
             r1 = conn.getresponse()
             '''if r1.status==200:
                 print "status200 received ok"
@@ -135,13 +142,13 @@ class SRTMDownloader():
 
             for filename in files:
                 self.filelist[self.parseFilename(filename)] = (
-                            continent, filename)
+                    continent, filename)
 
             '''print self.filelist'''
         # Add meta info
         self.filelist["server"] = self.server
         self.filelist["directory"] = self.directory
-        with open(self.filelist_file , 'wb') as output:
+        with open(self.filelist_file, 'wb') as output:
             pickle.dump(self.filelist, output)
 
     def parseFilename(self, filename):
@@ -191,17 +198,17 @@ class SRTMDownloader():
         return SRTMTile(self.cachedir + "/" + filename, int(lat), int(lon))
 
     def downloadTile(self, continent, filename):
-        #Use HTTP
+        # Use HTTP
         if self.offline == 1:
             return
-        conn = httplib.HTTPConnection(self.server)
+        conn = http.client.HTTPConnection(self.server)
         conn.set_debuglevel(0)
         filepath = "%s%s%s" % \
-                     (self.directory,continent,filename)
+                     (self.directory, continent,filename)
         '''print "filepath=%s" % filepath'''
         conn.request("GET", filepath)
         r1 = conn.getresponse()
-        if r1.status==200:
+        if r1.status ==200:
             '''print "status200 received ok"'''
             data = r1.read()
             self.ftpfile = open(self.cachedir + "/" + filename, 'wb')
@@ -221,13 +228,14 @@ class SRTMTile:
         easier for as to interpolate the value, because for every point we
         only have to look at a single tile.
         """
+
     def __init__(self, f, lat, lon):
         zipf = zipfile.ZipFile(f, 'r')
         names = zipf.namelist()
         if len(names) != 1:
             raise InvalidTileError(lat, lon)
         data = zipf.read(names[0])
-        self.size = int(math.sqrt(len(data)/2)) # 2 bytes per sample
+        self.size = int(math.sqrt(len(data)/2))  # 2 bytes per sample
         # Currently only SRTM1/3 is supported
         if self.size not in (1201, 3601):
             raise InvalidTileError(lat, lon)
@@ -277,12 +285,11 @@ class SRTMTile:
         assert y < self.size, "y: %d<%d" % (y, self.size)
         # Same as calcOffset, inlined for performance reasons
         offset = x + self.size * (self.size - y - 1)
-        #print offset
+        # print offset
         value = self.data[offset]
         if value == -32768:
-            return -1 # -32768 is a special value for areas with no data
+            return -1  # -32768 is a special value for areas with no data
         return value
-        
 
     def getAltitudeFromLatLon(self, lat, lon):
         """Get the altitude of a lat lon pair, using the four neighbouring
@@ -308,71 +315,67 @@ class SRTMTile:
         value11 = self.getPixelValue(x_int+1, y_int+1)
         value1 = self._avg(value00, value10, x_frac)
         value2 = self._avg(value01, value11, x_frac)
-        value  = self._avg(value1,  value2, y_frac)
+        value = self._avg(value1,  value2, y_frac)
         # print "%4d %4d | %4d\n%4d %4d | %4d\n-------------\n%4d" % (
         #        value00, value10, value1, value01, value11, value2, value)
         return value
 
 
-
 class parseHTMLDirectoryListing(HTMLParser):
 
     def __init__(self):
-        #print "parseHTMLDirectoryListing.__init__"
+        # print "parseHTMLDirectoryListing.__init__"
         HTMLParser.__init__(self)
-        self.title="Undefined"
+        self.title = "Undefined"
         self.isDirListing = False
-        self.dirList=[]
+        self.dirList = []
         self.inTitle = False
         self.inHyperLink = False
-        self.currAttrs=""
-        self.currHref=""
+        self.currAttrs = ""
+        self.currHref = ""
 
     def handle_starttag(self, tag, attrs):
-        #print "Encountered the beginning of a %s tag" % tag
-        if tag=="title":
+        # print "Encountered the beginning of a %s tag" % tag
+        if tag =="title":
             self.inTitle = True
         if tag == "a":
             self.inHyperLink = True
-            self.currAttrs=attrs
+            self.currAttrs = attrs
             for attr in attrs:
-                if attr[0]=='href':
+                if attr[0] =='href':
                     self.currHref = attr[1]
-            
 
     def handle_endtag(self, tag):
-        #print "Encountered the end of a %s tag" % tag
-        if tag=="title":
+        # print "Encountered the end of a %s tag" % tag
+        if tag =="title":
             self.inTitle = False
         if tag == "a":
             # This is to avoid us adding the parent directory to the list.
-            if self.currHref!="":
+            if self.currHref !="":
                 self.dirList.append(self.currHref)
-            self.currAttrs=""
-            self.currHref=""
+            self.currAttrs = ""
+            self.currHref = ""
             self.inHyperLink = False
 
-    def handle_data(self,data):
+    def handle_data(self, data):
         if self.inTitle:
             self.title = data
             '''print "title=%s" % data'''
             if "Index of" in self.title:
-                #print "it is an index!!!!"
+                # print "it is an index!!!!"
                 self.isDirListing = True
         if self.inHyperLink:
             # We do not include parent directory in listing.
-            if  "Parent Directory" in data:
-                self.currHref=""
+            if "Parent Directory" in data:
+                self.currHref = ""
 
     def getDirListing(self):
         return self.dirList
 
-#DEBUG ONLY
+
+# DEBUG ONLY
 if __name__ == '__main__':
     downloader = SRTMDownloader()
     downloader.loadFileList()
     tile = downloader.getTile(-36, 149)
-    print tile.getAltitudeFromLatLon(-35.282, 149.1287)
-
-
-
+    print(tile.getAltitudeFromLatLon(-35.282, 149.1287))

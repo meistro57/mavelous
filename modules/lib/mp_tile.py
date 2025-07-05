@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 access satellite map tile database
 
@@ -199,7 +199,7 @@ class MPTile:
 		while self.tiles_pending() > 0:
 			time.sleep(self.tile_delay)
 
-			keys = self._download_pending.keys()[:]
+			keys = list(self._download_pending.keys())[:]
 
 			# work out which one to download next, choosing by request_time
 			tile_info = self._download_pending[keys[0]]
@@ -213,20 +213,20 @@ class MPTile:
 			
 			try:
 				if self.debug:
-					print("Downloading %s [%u left]" % (url, len(keys)))
+					print(("Downloading %s [%u left]" % (url, len(keys))))
 				resp,img = http.request(url)
 			except httplib2.HttpLib2Error as e:
 				#print('Error loading %s' % url)
 				self._tile_cache[key] = self._unavailable
 				self._download_pending.pop(key)
 				if self.debug:
-					print("Failed %s: %s" % (url, str(e)))
+					print(("Failed %s: %s" % (url, str(e))))
 				continue
 			if 'content-type' not in resp or resp['content-type'].find('image') == -1:
 				self._tile_cache[key] = self._unavailable
 				self._download_pending.pop(key)
 				if self.debug:
-					print("non-image response %s" % url)
+					print(("non-image response %s" % url))
 				continue
 				
 
@@ -234,7 +234,7 @@ class MPTile:
 			md5 = hashlib.md5(img).hexdigest()
 			if md5 in BLANK_TILES:
 				if self.debug:
-					print("blank tile %s" % url)
+					print(("blank tile %s" % url))
 				self._tile_cache[key] = self._unavailable
 				self._download_pending.pop(key)
 				continue
@@ -410,7 +410,7 @@ class MPTile:
 
 		# choose a zoom level if not provided
 		if zoom is None:
-			zooms = range(self.min_zoom, self.max_zoom+1)
+			zooms = list(range(self.min_zoom, self.max_zoom+1))
 		else:
 			zooms = [zoom]
 		for zoom in zooms:
@@ -507,21 +507,21 @@ if __name__ == "__main__":
 		lon = bounds[1]
 		ground_width = max(mp_util.gps_distance(lat, lon, lat, lon+bounds[3]),
 				   mp_util.gps_distance(lat, lon, lat-bounds[2], lon))
-		print lat, lon, ground_width
+		print(lat, lon, ground_width)
 
 	mt = MPTile(debug=opts.debug, service=opts.service,
 		    tile_delay=opts.delay, max_zoom=opts.max_zoom)
 	if opts.zoom is None:
-		zooms = range(mt.min_zoom, mt.max_zoom+1)
+		zooms = list(range(mt.min_zoom, mt.max_zoom+1))
 	else:
 		zooms = [opts.zoom]
 	for zoom in zooms:
 		tlist = mt.area_to_tile_list(lat, lon, width=1024, height=1024,
 					     ground_width=ground_width, zoom=zoom)
-		print("zoom %u needs %u tiles" % (zoom, len(tlist)))
+		print(("zoom %u needs %u tiles" % (zoom, len(tlist))))
 		for tile in tlist:
 			mt.load_tile(tile)
 		while mt.tiles_pending() > 0:
 			time.sleep(2)
-			print("Waiting on %u tiles" % mt.tiles_pending())
+			print(("Waiting on %u tiles" % mt.tiles_pending()))
 	print('Done')

@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''camera control for ptgrey chameleon camera'''
 
-import time, threading, sys, os, numpy, Queue, cv, errno, cPickle, signal, struct, fcntl, select, cStringIO
+import time, threading, sys, os, numpy, queue, cv, errno, pickle, signal, struct, fcntl, select, io
 
 # use the camera code from the cuav repo (see githib.com/tridge)
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', 'cuav', 'camera'))
@@ -40,9 +40,9 @@ class camera_state(object):
         self.fps = 0
         self.scan_fps = 0
         self.cam = None
-        self.save_queue = Queue.Queue()
-        self.scan_queue = Queue.Queue()
-        self.transmit_queue = Queue.Queue()
+        self.save_queue = queue.Queue()
+        self.scan_queue = queue.Queue()
+        self.transmit_queue = queue.Queue()
         self.viewing = False
         self.depth = 8
         self.gcs_address = None
@@ -103,17 +103,17 @@ def cmd_camera(args):
         state.running = False
         print("stopped camera capture")
     elif args[0] == "status":
-        print("Cap %u imgs  %u err %u scan  %u regions %.0f jsize %.0f xmitq %u lst %u sq %.1f eff" % (
+        print(("Cap %u imgs  %u err %u scan  %u regions %.0f jsize %.0f xmitq %u lst %u sq %.1f eff" % (
             state.capture_count, state.error_count, state.scan_count, state.region_count, 
-            state.jpeg_size, state.xmit_queue, state.frame_loss, state.scan_queue.qsize(), state.efficiency))
+            state.jpeg_size, state.xmit_queue, state.frame_loss, state.scan_queue.qsize(), state.efficiency)))
     elif args[0] == "queue":
-        print("scan %u  save %u  transmit %u  eff %.1f  bw %.1f  rtt %.1f" % (
+        print(("scan %u  save %u  transmit %u  eff %.1f  bw %.1f  rtt %.1f" % (
                 state.scan_queue.qsize(),
                 state.save_queue.qsize(),
                 state.transmit_queue.qsize(),
                 state.efficiency,
                 state.bandwidth_used,
-                state.rtt_estimate))
+                state.rtt_estimate)))
     elif args[0] == "view":
         if mpstate.map is None:
             print("Please load map module first")
@@ -134,42 +134,42 @@ def cmd_camera(args):
         state.gcs_address = args[1]
     elif args[0] == "brightness":
         if len(args) != 2:
-            print("brightness=%f" % state.brightness)
+            print(("brightness=%f" % state.brightness))
         else:
             state.brightness = float(args[1])
     elif args[0] == "capbrightness":
         if len(args) != 2:
-            print("capbrightness=%u" % state.capture_brightness)
+            print(("capbrightness=%u" % state.capture_brightness))
         else:
             state.capture_brightness = int(args[1])
     elif args[0] == "gamma":
         if len(args) != 2:
-            print("gamma=%u" % state.gamma)
+            print(("gamma=%u" % state.gamma))
         else:
             state.gamma = int(args[1])
     elif args[0] == "quality":
         if len(args) != 2:
-            print("quality=%u" % state.quality)
+            print(("quality=%u" % state.quality))
         else:
             state.quality = int(args[1])
     elif args[0] == "bandwidth":
         if len(args) != 2:
-            print("bandwidth=%u" % state.bandwidth)
+            print(("bandwidth=%u" % state.bandwidth))
         else:
             state.bandwidth = int(args[1])
     elif args[0] == "loss":
         if len(args) != 2:
-            print("packet_loss=%u" % state.packet_loss)
+            print(("packet_loss=%u" % state.packet_loss))
         else:
             state.packet_loss = int(args[1])
     elif args[0] == "save":
         if len(args) != 2:
-            print("save_pgm=%s" % str(state.save_pgm))
+            print(("save_pgm=%s" % str(state.save_pgm)))
         else:
             state.save_pgm = bool(int(args[1]))
     elif args[0] == "boundary":
         if len(args) != 2:
-            print("boundary=%s" % state.boundary)
+            print(("boundary=%s" % state.boundary))
         else:
             state.boundary = args[1]
     else:
@@ -203,7 +203,7 @@ def get_base_time():
         print('re-opening camera')
         chameleon.close(h)
         h = chameleon.open(state.colour, state.depth, state.capture_brightness)
-  print('base_time=%f' % base_time)
+  print(('base_time=%f' % base_time))
   return h, base_time, frame_time
 
 def capture_thread():
@@ -258,7 +258,7 @@ def capture_thread():
 
             last_frame_time = frame_time
             last_frame_counter = frame_counter
-        except chameleon.error, msg:
+        except chameleon.error as msg:
             state.error_count += 1
             state.error_msg = msg
     if h is not None:
@@ -287,7 +287,7 @@ def scan_thread():
             if state.scan_queue.qsize() > 100:
                 (frame_time,im) = state.scan_queue.get(timeout=0.2)
             (frame_time,im) = state.scan_queue.get(timeout=0.2)
-        except Queue.Empty:
+        except queue.Empty:
             continue
 
         t1 = time.time()
@@ -369,7 +369,7 @@ def transmit_thread():
             pkt = ThumbPacket(frame_time, regions, thumb, latlon_list, state.frame_loss, state.xmit_queue)
 
             # send matches with a higher priority
-            bsend.send(cPickle.dumps(pkt, cPickle.HIGHEST_PROTOCOL),
+            bsend.send(pickle.dumps(pkt, pickle.HIGHEST_PROTOCOL),
                        dest=(state.gcs_address, state.gcs_view_port),
                        priority=1)
 
@@ -392,7 +392,7 @@ def transmit_thread():
         bsend.set_packet_loss(state.packet_loss)
         bsend.set_bandwidth(state.bandwidth)
         pkt = ImagePacket(frame_time, jpeg)
-        bsend.send(cPickle.dumps(pkt, cPickle.HIGHEST_PROTOCOL),
+        bsend.send(pickle.dumps(pkt, pickle.HIGHEST_PROTOCOL),
                    dest=(state.gcs_address, state.gcs_view_port))
 
 
@@ -443,7 +443,7 @@ def view_thread():
             if buf is None:
                 continue
             try:
-                obj = cPickle.loads(str(buf))
+                obj = pickle.loads(str(buf))
                 if obj == None:
                     continue
             except Exception as e:
@@ -491,8 +491,8 @@ def view_thread():
                 # work out where we were at the time
                 try:
                     pos = state.mpos.position(obj.frame_time, 0)
-                except mav_position.MavInterpolatorException, msg:
-                    print msg
+                except mav_position.MavInterpolatorException as msg:
+                    print(msg)
                     pos = None
                 if pos:
                     mosaic.add_image(filename, img, pos)
